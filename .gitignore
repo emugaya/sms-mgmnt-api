@@ -1,5 +1,4 @@
 # Whitelist dotfiles
-.*
 !deps/**/.*
 !test/fixtures/**/.*
 !tools/node_modules/**/.*
@@ -39,6 +38,7 @@ icu_config.gypi
 .eslintcache
 node_trace.*.log
 coverage/
+coverage
 !**/node_modules/**/coverage
 
 /out
@@ -136,3 +136,4 @@ deps/v8/third_party/eu-strip/
 
 .DS_Store
 node_modules/
+.n*

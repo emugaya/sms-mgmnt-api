@@ -1,0 +1,1 @@
+NODE_ENV=development SERVER_PORT=1234 nodemon --inspect ./server.js --use-strict

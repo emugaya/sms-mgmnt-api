@@ -1,0 +1,46 @@
+{
+  "name": "sms-mgmnt-api",
+  "version": "1.0.0",
+  "description": "SMS Management API",
+  "main": "server.js",
+  "engines": {
+    "node": "=8.9.4"
+  },
+  "author": "Ezekiel Mugaya",
+  "private": true,
+  "license": "ISC",
+  "dependencies": {
+    "@sendgrid/mail": "^6.3.1",
+    "bcryptjs": "^2.4.3",
+    "joi": "14.3.1",
+    "jsonwebtoken": "^8.3.0",
+    "moment": "^2.22.2",
+    "passport-google-oauth": "^1.0.0",
+    "passport-jwt": "^4.0.0",
+    "passport-restify": "^1.0.1",
+    "password-generator": "^2.2.0",
+    "pg": "^7.6.1",
+    "pg-hstore": "^2.3.2",
+    "restify": "^7.2.2",
+    "restify-cors-middleware": "^1.1.1",
+    "restify-errors": "^6.1.1",
+    "restify-plugin-body-reader": "^2.6.1",
+    "sequelize": "^4.41.2 ",
+    "swagger-restify": "^1.0.1",
+    "swaggerize-restify": "^2.0.10",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-http": "^4.2.0",
+    "mocha": "^5.2.0",
+    "nodemon": "^1.18.6",
+    "nyc": "^13.3.0",
+    "sequelize-cli": "^5.4.0",
+    "supertest": "^3.4.2"
+  },
+  "scripts": {
+    "prestart": "if [ $NODE_ENV != production ] ; then node ./sync.js && sequelize db:migrate; fi",
+    "test": "nyc mocha  --exit"
+  }
+}

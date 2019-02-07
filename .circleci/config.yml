@@ -1,0 +1,99 @@
+version: 2
+jobs:
+  build:
+    docker:
+      # specify the version you desire here
+      - image: circleci/node:8.9.4
+
+      - image: circleci/postgres:9.6.2-alpine
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: smsapitest
+          
+
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/mongo:3.4.4
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      - run: npm install
+      - run: npm install sequelize-cli
+      - run: npm install mocha-junit-reporter # just for CircleCI
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+      # run database migrations
+      - run: node_modules/.bin/sequelize db:migrate
+      - run: mkdir reports
+      # Run mocha
+      - run:
+          name: npm test
+          command: ./node_modules/.bin/nyc ./node_modules/.bin/mocha --recursive --timeout=10000 --exit --reporter mocha-junit-reporter --reporter-options mochaFile=reports/mocha/test-results.xml
+          when: always
+      - run:
+          name: Setup Code Climate test-reporter
+          command: |
+            # download test reporter as a static binary
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+            ./cc-test-reporter before-build
+          when: always
+      - run:
+          name: code-coverage
+          command: |
+            mkdir coverage
+            # nyc report requires that nyc has already been run,
+            # which creates the .nyc_output folder containing necessary data
+            ./node_modules/.bin/nyc report --reporter=text-lcov > coverage/lcov.info
+            ./cc-test-reporter after-build -t lcov
+          when: always
+      - store_test_results:
+          path: reports
+      - store_artifacts:
+          path: ./reports/mocha/test-results.xml
+      - store_artifacts:
+          path: ./reports/eslint/eslint.xml
+      - store_artifacts: # upload test coverage as artifact
+          path: ./coverage/lcov.info
+          prefix: tests
+      # Upload results
+      # run tests!
+      # - run:
+      #     name: Setup Code Climete test-reporter
+      #     command: |
+      #       mkdir -p tmp/
+      #       curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+      #       chmod +x ./cc-test-reporter
+      # - run: 
+      #     name: Run tests
+      #     pre:
+      #       - ./cc-test-reporter before-build
+      #     command: |
+      #       node_modules/.bin/nyc --reporter=lcov npm test
+      #       ./node_modules/.bin/nyc report --reporter=text-lcov > coverage/lcov.info
+      #       ./cc-test-reporter after-build -t lcov
+      # - persist_to_workspace:
+      #     root: tmp
+      #     paths: 
+      #       - codeclimate.frontend.json
+      # - attach_workspace:
+      #     at: ~/repo/tmp
+      # - run:
+      #     # name: Upload coverage results to Code Climate
+      #     command: |
+      #       ./cc-test-reporter sum-coverage codeclimate.*.json -p 2 -o codeclimate.total.json
+      #       .cc-test-reporter upload-coverage -i codeclimate.total.js

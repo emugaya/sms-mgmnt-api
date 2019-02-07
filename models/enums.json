@@ -1,0 +1,6 @@
+{
+  "SmsStatus": [
+      "DeletedBySender",
+      "DeletedByRecipient"
+    ]
+}
