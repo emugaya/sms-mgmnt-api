@@ -27,17 +27,6 @@ module.exports = function(sequelize, DataTypes) {
   {
     timestamps: true,
     paranoid: true,
-    // classMethods: {
-    //   associate:function(models){
-    //     Sms.belongsTo(models.User, {
-    //       as: 'User',
-    //       foreignKey: {
-    //         field: 'id',
-    //         allowNull: true
-    //       }
-    //     });
-    //   }
-    // },
     defaultScope: {
       'attributes': ['id', 'message', 'fromNumber', 'status', 'toNumber', 'createdAt']
     }

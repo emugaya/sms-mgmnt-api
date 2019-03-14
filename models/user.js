@@ -84,19 +84,6 @@ module.exports = function(sequelize, DataTypes) {
         fields: ['email', 'telephoneNumber']
       }
     ],
-    // classMethods: {
-    //   addScopes: function(models) {
-    //     User.addScope('profile',
-    //     {
-    //       'attributes' : ['id', 'firstName', 'lastName', 'email', 'active']
-    //     });
-    //     User.addScope('auth', 
-    //     {
-    //       'attributes': ['id', 'firstName', 'lastName', 'email'],
-    //       'where': { 'active': true }
-    //     });
-    //   }
-    // },
     defaultScope: {
       'attributes': ['id', 'firstName', 'lastName', 'email', 'active']
     },

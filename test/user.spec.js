@@ -19,54 +19,44 @@ describe('User', function() {
     await truncate.truncateUsers();
 
     validUser = {
-      user: {
-        email: 'email@email.com',
-        password: 'Test@1234'
-      }
+      email: 'email@email.com',
+      password: 'Test@1234'
     }
 
     userOne = {
-        "user": {
-          "firstName": "user-one-firstname",
-          "lastName": "user-one-lastname",
-          "telephoneNumber": "0663053842",
-          "email": "user.one@gmail.com",
-          "password": "Test@1234",
-          "confirmPassword": "Test@1234"
-        }
+      "firstName": "user-one-firstname",
+      "lastName": "user-one-lastname",
+      "telephoneNumber": "0663053842",
+      "email": "user.one@gmail.com",
+      "password": "Test@1234",
+      "confirmPassword": "Test@1234"
     };
 
     userTwo = {
-        "user": {
-          "firstName": "user-two-firstname",
-          "lastName": "user-two-firstname",
-          "telephoneNumber": "0671227322",
-          "email": "user.two@gmail.com",
-          "password": "Test@1234",
-          "confirmPassword": "Test@1234"
-        }
+      "firstName": "user-two-firstname",
+      "lastName": "user-two-firstname",
+      "telephoneNumber": "0671227322",
+      "email": "user.two@gmail.com",
+      "password": "Test@1234",
+      "confirmPassword": "Test@1234"
     };
 
     userThree = {
-        "user": {
-          "firstName": "user-three-firstname",
-          "lastName": "user-three-firstname",
-          "telephoneNumber": "0671227567",
-          "email": "user.three@gmail.com",
-          "password": "Test",
-          "confirmPassword": "Test"
-        }
+      "firstName": "user-three-firstname",
+      "lastName": "user-three-firstname",
+      "telephoneNumber": "0671227567",
+      "email": "user.three@gmail.com",
+      "password": "Test",
+      "confirmPassword": "Test"
     };
 
     invalidUser = {
-      "user": {
-        "firstName": "invalid-user-one-firstname",
-        "lastName": "invalid-user-one-firstname",
-        "telephoneNumber": "0738433",
-        "email": "invalid.useronekobel@gmail.com",
-        "password": "Test@1234",
-        "confirmPassword": "Test@1234"
-      }
+      "firstName": "invalid-user-one-firstname",
+      "lastName": "invalid-user-one-firstname",
+      "telephoneNumber": "0738433",
+      "email": "invalid.useronekobel@gmail.com",
+      "password": "Test@1234",
+      "confirmPassword": "Test@1234"
     }
 
     await User.findOrCreate({
@@ -111,7 +101,7 @@ describe('User', function() {
         .set('Accept', 'application/json')
         .end((err, response) => {
           expect(response.statusCode).to.equal(200);
-          expect(response.body).to.equal('User account created succesfully', done());
+          expect(response.body.message).to.equal('User account created succesfully', done());
         });
     });
 
@@ -127,7 +117,7 @@ describe('User', function() {
     });
 
     it('should not create a user with missing parameters', done => {
-      delete userOne.user.email;
+      delete userOne.email;
       request(server)
         .post('/users/register')
         .send(userOne)
@@ -149,8 +139,8 @@ describe('User', function() {
     });
 
     it('should not create a user with already existing phoneNumber', done => {
-      userOne.user.email = 'newtest@email.com'
-      userOne.user.telephoneNumber = userTwo.user.telephoneNumber
+      userOne.email = 'newtest@email.com'
+      userOne.telephoneNumber = userTwo.telephoneNumber
       request(server)
         .post('/users/register')
         .send(userOne)
@@ -186,7 +176,7 @@ describe('User', function() {
     });
 
     it('should not login user with wrong password', done => {
-      userOne.user.password = 'wrong_password'
+      userOne.password = 'wrong_password'
       request(server)
         .post('/users/login')
         .send(userOne)
@@ -198,7 +188,7 @@ describe('User', function() {
     });
 
     it('should not login user with wrong email', done => {
-      userOne.user.email = 'wrong@email.com'
+      userOne.email = 'wrong@email.com'
       request(server)
         .post('/users/login')
         .send(invalidUser)
@@ -210,7 +200,7 @@ describe('User', function() {
     });
 
     it('should not login user with blank email', done => {
-      invalidUser.user.email = null;
+      invalidUser.email = null;
       request(server)
         .post('/users/login')
         .send(invalidUser)
@@ -222,7 +212,7 @@ describe('User', function() {
     });
 
     it('should not login user with blank password', done => {
-      invalidUser.user.password = null;
+      invalidUser.password = null;
       request(server)
         .post('/users/login')
         .send(invalidUser)

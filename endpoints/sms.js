@@ -7,7 +7,7 @@ var Validator = require('../helpers').smsValidator;
 const deleteSmsErrorMsg = 'Please ensure that the SMS message your deleting exists';
 
 var _sendSms = async function sendMessage(req, res, next) {
-  let sms = req.body.sms
+  let sms = req.body
   sms.userId = req.user.id;
   sms.fromNumber = req.user.telephoneNumber;
 
@@ -23,7 +23,7 @@ var _sendSms = async function sendMessage(req, res, next) {
 
   Sms.create(sms)
     .then((sms) => {
-      res.send(200, sms);
+      res.send(200, formartSmsMsg(sms));
       return next();
     })
 }
@@ -50,13 +50,35 @@ var _getSentSms = function getMySmsMsgs(req, res, next){
 
   Sms.findAll(sentMessages)
     .then((smsMsgs) => {
-      res.send(200, smsMsgs);
+      let messages = []
+      smsMsgs.forEach((sms) => {
+        messages.push(formartSmsMsg(sms, 'received'));
+      });
+
+      res.send(200, messages);
       return next();
     })
     .catch((err) => {
       console.log(err);
       return next(new restifyErrors.InternalServerError('There was a problem with your request'));
     })
+}
+
+var formartSmsMsg = function formatSms(sms, requestType='sent'){
+  let SmsMessage = {
+    id: sms.id,
+    message: sms.message,
+    toNumber: sms.toNumber,
+    fromNumber: sms.fromNumber,
+    date_sent: sms.createdAt
+  }
+
+  if (requestType === 'received'){
+    delete SmsMessage.date_sent;
+    SmsMessage.date_received = sms.createdAt;
+  }
+
+  return SmsMessage;
 }
 
 var _getRecievedSms = function getMySmsMsgs(req, res, next){
@@ -70,7 +92,12 @@ var _getRecievedSms = function getMySmsMsgs(req, res, next){
 
   Sms.findAll(receivedMessages)
     .then((smsMsgs) => {
-      res.send(200, smsMsgs);
+      let messages = []
+      smsMsgs.forEach((sms) => {
+        messages.push(formartSmsMsg(sms, 'received'));
+      });
+
+      res.send(200, messages);
       return next();
     })
     .catch((err) => {
@@ -92,6 +119,13 @@ var _getSms = function getSingleSms(req, res, next){
               (sms.toNumber == currentUserTelephoneNumber && sms.status == 'DeletedByRecipient')) {
                 return next(new restifyErrors.NotFoundError('Sms not found'));
               }
+          if(currentUserTelephoneNumber == sms.fromNumber){
+            sms = formartSmsMsg(sms);
+          }
+
+          if(currentUserTelephoneNumber == sms.toNumber){
+            sms = formartSmsMsg(sms, 'recieved');
+          }
           res.send(200, sms);
           return next();
         }
@@ -121,7 +155,7 @@ var _deleteSms = function deleteSingleSms(req, res, next){
           if(sms.fromNumber == currentUserTelephoneNumber && sms.status == null){
             const updateSingelSms = await updateSmsDeletStatus(smsId, 'DeletedBySender');
             if(updateSingelSms){
-              res.send(200, 'Sms deleted succesfully');
+              res.send(200, {message: 'Sms deleted succesfully'});
               return next(); 
             }
   
@@ -131,7 +165,7 @@ var _deleteSms = function deleteSingleSms(req, res, next){
           if(sms.toNumber == currentUserTelephoneNumber && sms.status == null){
             const updateSingelSms = await updateSmsDeletStatus(smsId, 'DeletedByRecipient');
             if(updateSingelSms){
-              res.send(200, 'Sms deleted succesfully');
+              res.send(200, {message: 'Sms deleted succesfully'});
               return next(); 
             }
             
@@ -146,7 +180,7 @@ var _deleteSms = function deleteSingleSms(req, res, next){
           if(sms.status){
             return Sms.destroy(queryOptions)
               .then((result) => {
-                res.send(200, 'Sms deleted succesfully');
+                res.send(200, {message: 'Sms deleted succesfully'});
                 return next(); 
               })
               .catch((err) => {

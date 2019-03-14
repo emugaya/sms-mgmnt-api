@@ -6,7 +6,7 @@ var Validator = require('../helpers').userValidator;
 var User = require('../models').User;
 
 var _registerUser = function register(req, res, next) {
-  var user = req.body.user;
+  var user = req.body;
   const { error, value } = Joi.validate(user, Validator);
   if(error) {
     return next(new restifyErrors.BadRequestError(error.message));
@@ -30,19 +30,18 @@ var _registerUser = function register(req, res, next) {
     }
   }).spread((user, newUser) => {
     if (newUser) {
-      res.send(200, 'User account created succesfully');
+      res.send(200, {message: 'User account created succesfully'});
       return next();
     } else {
       return next(new restifyErrors.ConflictError('User already exists'));
     }
   }).catch((err) => {
-    // console.log(err);
     return next(new restifyErrors.BadRequestError('An error occured creating a creating user. try again'));
     });
 }
 
 var _login = function(req, res, next) {
-  var user = req.body.user;
+  var user = req.body;
 
   if(user.email && user.password){
     User.scope('login').findOne({ where : { email: user.email.toLowerCase() } })
@@ -54,7 +53,6 @@ var _login = function(req, res, next) {
         }
       })
       .catch((err) => {
-        // console.log(err);
         return next(new restifyErrors.UnauthorizedError("Error logging in user. Invalid email or password"));
       })
   } else {
@@ -77,7 +75,6 @@ var _logout = function(req, res, next) {
         });
     })
     .catch((err) => {
-      // console.log(err);
       return next(new restifyErrors.NotFoundError('Please login first'));
     });
 }
