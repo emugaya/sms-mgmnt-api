@@ -49,15 +49,19 @@ var _login = function(req, res, next) {
         if (Security.passwordCompare(user.password, validUser.password)) {
           var token = Security.generateJWTToken(validUser);
           res.send(200, { 'token' : token });
+          
           return next();
+        } else {
+          return next(new restifyErrors.UnauthorizedError("Error logging in user. Invalid email or password"));
         }
       })
       .catch((err) => {
         return next(new restifyErrors.UnauthorizedError("Error logging in user. Invalid email or password"));
       })
   } else {
-    return next(new restifyErrors.BadRequestError("Email and password required"));
+    return next(new restifyErrors.UnauthorizedError("Error logging in user. Invalid email or password"));
   }
+
 }
 
 var _logout = function(req, res, next) {

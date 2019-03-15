@@ -16,7 +16,7 @@ const _smsSchema = Joi.object().keys({
 	message: Joi.string().min(1).max(140).required(),
 	fromNumber: Joi.string().min(10).max(10).required(),
 	toNumber: Joi.string().min(10).max(10).required(),
-	userId: Joi.number().required()
+	senderUserId: Joi.number().required()
 });
 
 module.exports = {

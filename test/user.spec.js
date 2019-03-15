@@ -188,7 +188,7 @@ describe('User', function() {
     });
 
     it('should not login user with wrong email', done => {
-      userOne.email = 'wrong@email.com'
+      invalidUser.email = 'wrong@email.com'
       request(server)
         .post('/users/login')
         .send(invalidUser)
@@ -206,8 +206,8 @@ describe('User', function() {
         .send(invalidUser)
         .set('Accept', 'application/json')
         .end((err, response) => {
-          expect(response.statusCode).to.equal(400);
-          expect(response.body.message).to.equal('Email and password required', done());
+          expect(response.statusCode).to.equal(401);
+          expect(response.body.message).to.equal('Error logging in user. Invalid email or password', done());
         });
     });
 
@@ -218,8 +218,8 @@ describe('User', function() {
         .send(invalidUser)
         .set('Accept', 'application/json')
         .end((err, response) => {
-          expect(response.statusCode).to.equal(400);
-          expect(response.body.message).to.equal('Email and password required', done());
+          expect(response.statusCode).to.equal(401);
+          expect(response.body.message).to.equal('Error logging in user. Invalid email or password', done());
         });
     });
   });

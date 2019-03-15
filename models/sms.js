@@ -19,9 +19,13 @@ module.exports = function(sequelize, DataTypes) {
       default: null,
       allowNull: true
     },
-    userId: {
+    recipientUserId: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: true,
+    },
+    senderUserId:{
+      type: DataTypes.INTEGER,
+      allowNull: true
     }
   },
   {

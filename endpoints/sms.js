@@ -1,4 +1,5 @@
 const Joi = require('joi');
+const Op = require('sequelize').Op;
 var restifyErrors = require('restify-errors');
 var Sms = require('../models').Sms;
 var User = require('../models').User;
@@ -8,8 +9,12 @@ const deleteSmsErrorMsg = 'Please ensure that the SMS message your deleting exis
 
 var _sendSms = async function sendMessage(req, res, next) {
   let sms = req.body
-  sms.userId = req.user.id;
+  sms.senderUserId = req.user.id;
   sms.fromNumber = req.user.telephoneNumber;
+
+  if(sms.toNumber == sms.fromNumber){
+    return next(new restifyErrors.BadRequestError('You can not send an sms to your self.'));
+  }
 
   const { error, value } = Joi.validate(sms, Validator);
   if(error){
@@ -20,6 +25,7 @@ var _sendSms = async function sendMessage(req, res, next) {
   if(!validRecipient){
     return next(new restifyErrors.BadRequestError('Your allowed to send sms to registerd users only.'));
   }
+  sms.recipientUserId = validRecipient.id
 
   Sms.create(sms)
     .then((sms) => {
@@ -33,7 +39,7 @@ var checkIfRecipientNumberIsForRegisteredUser = function checkNumber(toNumber) {
   return User.findOne(whereClause)
     .then((user) => {
       if(user){ 
-        return true;
+        return user;
       }
       return false;
     })
@@ -44,7 +50,8 @@ var _getSentSms = function getMySmsMsgs(req, res, next){
 
   const sentMessages = {
     where: {
-      'fromNumber': telephoneNumber,
+      'senderUserId': req.user.id,
+      'status': { [Op.ne]: 'DeletedBySender' }
     }
   };
 
@@ -64,29 +71,13 @@ var _getSentSms = function getMySmsMsgs(req, res, next){
     })
 }
 
-var formartSmsMsg = function formatSms(sms, requestType='sent'){
-  let SmsMessage = {
-    id: sms.id,
-    message: sms.message,
-    toNumber: sms.toNumber,
-    fromNumber: sms.fromNumber,
-    date_sent: sms.createdAt
-  }
-
-  if (requestType === 'received'){
-    delete SmsMessage.date_sent;
-    SmsMessage.date_received = sms.createdAt;
-  }
-
-  return SmsMessage;
-}
-
 var _getRecievedSms = function getMySmsMsgs(req, res, next){
-  let telephoneNumber = req.user.telephoneNumber;
+  let recipientUserId = req.user.id;
 
   const receivedMessages = {
     where: {
-      'toNumber': telephoneNumber,
+      recipientUserId: recipientUserId,
+      status: { [Op.ne]: 'DeletedByRecipient' }
     }
   };
 
@@ -109,12 +100,15 @@ var _getRecievedSms = function getMySmsMsgs(req, res, next){
 var _getSms = function getSingleSms(req, res, next){
   const smsId = req.params.smsId;
   const currentUserTelephoneNumber = req.user.telephoneNumber
-  const queryOptions = { where: { id: smsId }};
+  const queryOptions = { where: { id: smsId } };
 
   Sms.findOne(queryOptions)
     .then((sms) => {
       if(sms) {
-        if(sms.toNumber == currentUserTelephoneNumber || sms.fromNumber.currentUserTelephoneNumber){
+        // console.log(sms, '...')
+        // console.log(currentUserTelephoneNumber, '...')
+        if(sms.toNumber == currentUserTelephoneNumber || sms.fromNumber == currentUserTelephoneNumber){
+          console.log('hjgfsad')
           if((sms.fromNumber == currentUserTelephoneNumber && sms.status == 'DeletedBySender') || 
               (sms.toNumber == currentUserTelephoneNumber && sms.status == 'DeletedByRecipient')) {
                 return next(new restifyErrors.NotFoundError('Sms not found'));
@@ -137,6 +131,23 @@ var _getSms = function getSingleSms(req, res, next){
       console.log(err);
       return next(new restifyErrors.InternalServerError('An error occured while retrieving SMS. Makes sure the Sms exist'));
     })
+}
+
+var formartSmsMsg = function formatSms(sms, requestType='sent'){
+  let SmsMessage = {
+    id: sms.id,
+    message: sms.message,
+    toNumber: sms.toNumber,
+    fromNumber: sms.fromNumber,
+    dateSent: sms.createdAt
+  }
+
+  if (requestType === 'received'){
+    delete SmsMessage.dateSent;
+    SmsMessage.dateReceived = sms.createdAt;
+  }
+
+  return SmsMessage;
 }
 
 var _deleteSms = function deleteSingleSms(req, res, next){
