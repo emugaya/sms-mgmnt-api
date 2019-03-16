@@ -9,7 +9,8 @@ const _userSchema = Joi.object().keys({
   password: Joi.string().min(8).required(),
   confirmPassword: Joi.string().min(8).required(),
   password: Joi.string().regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/).min(8).required(),
-  confirmPassword: Joi.string().regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/).min(8).required()
+  confirmPassword: Joi.string().regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/).min(8).required(),
+  role: Joi.string()
 });
 
 const _smsSchema = Joi.object().keys({

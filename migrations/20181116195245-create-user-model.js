@@ -1,4 +1,5 @@
 'use strict';
+var ENUM = require('../models/enums.json');
 
 module.exports = {
   up: function (queryInterface, Sequelize) {
@@ -27,6 +28,10 @@ module.exports = {
       },
       password: {
         type: Sequelize.STRING,
+        allowNull: false
+      },
+      role: {
+        type: Sequelize.ENUM(ENUM.Role),
         allowNull: false
       },
       token: Sequelize.INTEGER,

@@ -1,3 +1,6 @@
+'use strict';
+var ENUM = require('../models/enums.json');
+
 module.exports = function(sequelize, DataTypes) {
   var User = sequelize.define('User', {
       firstName: {
@@ -56,6 +59,10 @@ module.exports = function(sequelize, DataTypes) {
           }
         }
       },
+      role: {
+        type:DataTypes.ENUM(ENUM.Role),
+        allowNull: false
+      },
       token: DataTypes.INTEGER,
       active: {
         type: DataTypes.BOOLEAN,
@@ -85,17 +92,17 @@ module.exports = function(sequelize, DataTypes) {
       }
     ],
     defaultScope: {
-      'attributes': ['id', 'firstName', 'lastName', 'email', 'active']
+      'attributes': ['id', 'firstName', 'lastName', 'email', 'active', 'role']
     },
     scopes: {
       auth: { 
-        attributes: ['id', 'firstName', 'lastName','telephoneNumber', 'email', 'active', 'token'],
+        attributes: ['id', 'firstName', 'lastName','telephoneNumber', 'email', 'active', 'token', 'role'],
         where: {
           active: true
         }
       },
       login: {
-        attributes: ['id', 'firstName', 'lastName', 'email', 'password', 'active', 'token'],
+        attributes: ['id', 'firstName', 'lastName', 'email', 'password', 'active', 'token', 'role'],
         where: {
           active: true
         }
@@ -106,7 +113,7 @@ module.exports = function(sequelize, DataTypes) {
       deleted: {
         paranoid: false,
         where: {
-          deletedAt: {$ne: null}
+          deletedAt: {[sequelize.Op.ne]: null}
         }
       },
       reset: {

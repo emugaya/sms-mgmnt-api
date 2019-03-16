@@ -1,6 +1,4 @@
 {
-  "SmsStatus": [
-      "DeletedBySender",
-      "DeletedByRecipient"
-    ]
+  "SmsStatus": ["DeletedBySender", "DeletedByRecipient"],
+  "Role": ["ADMIN", "SUPER", "USER"]
 }

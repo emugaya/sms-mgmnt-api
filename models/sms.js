@@ -1,4 +1,5 @@
-var ENUM = require(__dirname + '/enums.json');
+'use strict';
+var ENUM = require('../models/enums.json');
 
 module.exports = function(sequelize, DataTypes) {
   var Sms = sequelize.define('Sms', {
@@ -32,7 +33,7 @@ module.exports = function(sequelize, DataTypes) {
     timestamps: true,
     paranoid: true,
     defaultScope: {
-      'attributes': ['id', 'message', 'fromNumber', 'status', 'toNumber', 'createdAt']
+      'attributes': ['id', 'message', 'fromNumber', 'status', 'toNumber', 'createdAt', 'recipientUserId', 'senderUserId']
     }
   });
 

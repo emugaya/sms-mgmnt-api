@@ -46,12 +46,12 @@ var checkIfRecipientNumberIsForRegisteredUser = function checkNumber(toNumber) {
 }
 
 var _getSentSms = function getMySmsMsgs(req, res, next){
-  let telephoneNumber = req.user.telephoneNumber;
+  let senderUserId = req.user.id;
 
   const sentMessages = {
     where: {
-      'senderUserId': req.user.id,
-      'status': { [Op.ne]: 'DeletedBySender' }
+      senderUserId: senderUserId,
+      [Op.or]: [{status: null}, { status: 'DeletedByRecipient'}]
     }
   };
 
@@ -77,7 +77,7 @@ var _getRecievedSms = function getMySmsMsgs(req, res, next){
   const receivedMessages = {
     where: {
       recipientUserId: recipientUserId,
-      status: { [Op.ne]: 'DeletedByRecipient' }
+      [Op.or]: [{status: null}, { status: 'DeletedBySender'}]
     }
   };
 
@@ -98,21 +98,24 @@ var _getRecievedSms = function getMySmsMsgs(req, res, next){
 }
 
 var _getSms = function getSingleSms(req, res, next){
+  const user = req.user;
   const smsId = req.params.smsId;
-  const currentUserTelephoneNumber = req.user.telephoneNumber
+  const currentUserTelephoneNumber = user.telephoneNumber
   const queryOptions = { where: { id: smsId } };
 
   Sms.findOne(queryOptions)
     .then((sms) => {
       if(sms) {
-        // console.log(sms, '...')
-        // console.log(currentUserTelephoneNumber, '...')
         if(sms.toNumber == currentUserTelephoneNumber || sms.fromNumber == currentUserTelephoneNumber){
-          console.log('hjgfsad')
           if((sms.fromNumber == currentUserTelephoneNumber && sms.status == 'DeletedBySender') || 
               (sms.toNumber == currentUserTelephoneNumber && sms.status == 'DeletedByRecipient')) {
                 return next(new restifyErrors.NotFoundError('Sms not found'));
               }
+
+          if(sms.recipientUserId != user.id && sms.senderUserId != user.id){
+            return next(new restifyErrors.NotFoundError('Sms not found'));
+          }
+
           if(currentUserTelephoneNumber == sms.fromNumber){
             sms = formartSmsMsg(sms);
           }
@@ -120,6 +123,7 @@ var _getSms = function getSingleSms(req, res, next){
           if(currentUserTelephoneNumber == sms.toNumber){
             sms = formartSmsMsg(sms, 'recieved');
           }
+
           res.send(200, sms);
           return next();
         }

@@ -37,6 +37,9 @@ exports = module.exports = function(server){
   // Logout User
   server.put(_ver('/users/logout'), _parsers, _auth(), user.logout);
 
+  // Delete User
+  server.del(_ver('/users/:id'), _auth(), user.deleteUser);
+
   // SMS Endpoints
 
   // Send SMS
