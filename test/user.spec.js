@@ -66,12 +66,13 @@ describe('User', function() {
           { telephoneNumber: '0987654321' }
         ]
       },
-      attributes: ['firstName', 'lastName', 'telephoneNumber', 'email', 'password', 'token' ],
+      attributes: ['firstName', 'lastName', 'telephoneNumber', 'email', 'password', 'token', 'role' ],
       defaults: {
         'firstName': 'firstName',
         'lastName': 'lastName',
         'telephoneNumber': '0987654321',
         'email': 'email@email.com',
+        'role': 'USER',
         'password': '$2a$10$3T.ePZLME8llF0KJ4AkQb.pfGOnMnQ2gO8iiX3YZ05Xf87B59OyCy',
         'token': 100324349
       }

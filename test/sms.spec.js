@@ -61,12 +61,13 @@ describe('Sms Routes "/sms"', function() {
           { telephoneNumber: userOne.telephoneNumber }
         ]
       },
-      attributes: ['firstName', 'lastName', 'telephoneNumber', 'email', 'password', 'token' ],
+      attributes: ['firstName', 'lastName', 'telephoneNumber', 'email', 'role', 'password', 'token' ],
       defaults: {
         'firstName': userOne.firstName,
         'lastName': userOne.lastName,
         'telephoneNumber': userOne.telephoneNumber,
         'email': userOne.email,
+        'role': 'USER',
         'password': '$2a$10$3T.ePZLME8llF0KJ4AkQb.pfGOnMnQ2gO8iiX3YZ05Xf87B59OyCy',
         'token': 100324349
       }
@@ -83,12 +84,13 @@ describe('Sms Routes "/sms"', function() {
           { telephoneNumber: userTwo.telephoneNumber }
         ]
       },
-      attributes: ['firstName', 'lastName', 'telephoneNumber', 'email', 'password', 'token' ],
+      attributes: ['firstName', 'lastName', 'telephoneNumber', 'email', 'role','password', 'token' ],
       defaults: {
         'firstName': userTwo.firstName,
         'lastName': userTwo.lastName,
         'telephoneNumber': userTwo.telephoneNumber,
         'email': userTwo.email,
+        'role': 'USER',
         'password': '$2a$10$3T.ePZLME8llF0KJ4AkQb.pfGOnMnQ2gO8iiX3YZ05Xf87B59OyCy',
         'token': 100324349
       }

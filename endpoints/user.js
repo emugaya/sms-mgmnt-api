@@ -9,9 +9,7 @@ const Op = sequelize.Op
 
 var _registerUser = function register(req, res, next) {
   var user = req.body;
-  console.log(user.role, 'user role')
   if(!user.role) { user.role = 'USER' };
-  console.log(user.role, 'user role')
 
   const { error, value } = Joi.validate(user, Validator);
   if(error) {
